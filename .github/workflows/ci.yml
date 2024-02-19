@@ -20,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: super-linter/super-linter/slim@v5
+      - uses: super-linter/super-linter/slim@v6
         env:
           VALIDATE_ALL_CODEBASE: false
           VALIDATE_MARKDOWN: true
