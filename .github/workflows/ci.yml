@@ -11,6 +11,9 @@ jobs:
       - name: Install
         uses: ./.github/actions/install
 
+      - name: Assert Types
+        run: npm run check-types
+
       - name: Build website
         run: npm run build
 
