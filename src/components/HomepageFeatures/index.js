@@ -4,32 +4,32 @@ import styles from './styles.module.css';
 
 const FeatureList = [
   {
-    title: 'Easy to Use',
+    title: 'Laravel Packages',
     Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
     description: (
       <>
-        Docusaurus was designed from the ground up to be easily installed and
-        used to get your website up and running quickly.
+        We've released plenty of helper packages used in our Laravel projects - ranging from SOAP clients to
+          simple wrappers around validation.
       </>
     ),
   },
   {
-    title: 'Focus on What Matters',
+    title: 'GitHub Actions',
     Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
     description: (
       <>
-        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
-        ahead and move your docs into the <code>docs</code> directory.
+        Deploying software via GitHub is common for us - we've built solutions for AWS CodeDeploy and ECS where
+          we found options on the market didn't fit our usecase.
       </>
     ),
   },
   {
-    title: 'Powered by React',
+    title: 'React Native',
     Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
     description: (
       <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
+        We've built a few React Native apps for our clients - and we've released or forked some abandoned projects
+          to help us along the way.
       </>
     ),
   },
