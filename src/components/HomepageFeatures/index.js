@@ -4,12 +4,11 @@ import styles from './styles.module.css';
 
 const FeatureList = [
   {
-    title: 'Laravel Packages',
+    title: 'Laravel/PHP Packages',
     Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
     description: (
       <>
-        We've released plenty of helper packages used in our Laravel projects - ranging from SOAP clients to
-          simple wrappers around validation.
+          We've crafted a suite of robust helper packages for our Laravel/PHP projects, simplifying everything from SOAP clients to validation wrappers, all designed to elevate your development experience.
       </>
     ),
   },
@@ -18,8 +17,7 @@ const FeatureList = [
     Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
     description: (
       <>
-        Deploying software via GitHub is common for us - we've built solutions for AWS CodeDeploy and ECS where
-          we found options on the market didn't fit our usecase.
+          GitHub is at the core of our deployment strategies. We've tailored solutions using AWS CodeDeploy and ECS, filling gaps that existing tools left behind, ensuring a seamless deployment process.
       </>
     ),
   },
@@ -28,8 +26,7 @@ const FeatureList = [
     Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
     description: (
       <>
-        We've built a few React Native apps for our clients - and we've released or forked some abandoned projects
-          to help us along the way.
+          Our expertise in React Native is reflected in the apps we've developed for our clients. Along the way, we've revived and released open-source projects to contribute back to the community.
       </>
     ),
   },
