@@ -14,19 +14,8 @@ jobs:
       - name: Assert Types
         run: npm run check-types
 
+      - name: Assert Types
+        run: npm run lint
+
       - name: Build website
         run: npm run build
-
-  lint:
-    name: Lint Files
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: super-linter/super-linter/slim@v7
-        env:
-          VALIDATE_ALL_CODEBASE: false
-          VALIDATE_MARKDOWN: true
-          VALIDATE_NATURAL_LANGUAGE: true
-          DEFAULT_BRANCH: master
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
