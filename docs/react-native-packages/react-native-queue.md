@@ -1,6 +1,5 @@
 ---
 title: React Native Queue
-sidebar_position: 2
 id: react-native-queue
 ---
 

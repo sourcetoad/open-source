@@ -1,6 +1,5 @@
 ---
 title: React Native IDScan SDK
-sidebar_position: 1
 id: react-native-idscan-sdk
 ---
 

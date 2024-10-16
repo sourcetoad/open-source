@@ -1,6 +1,5 @@
 ---
 title: Aliyun ACK Deploy Action
-sidebar_position: 3
 id: ack-deploy-action
 ---
 

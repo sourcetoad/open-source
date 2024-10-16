@@ -1,6 +1,5 @@
 ---
 title: AWS ECS Deploy Action
-sidebar_position: 4
 id: aws-ecs-deploy-action
 ---
 

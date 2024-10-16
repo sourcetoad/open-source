@@ -1,6 +1,5 @@
 ---
 title: React Native Sketch Canvas
-sidebar_position: 3
 id: react-native-sketch-canvas
 ---
 

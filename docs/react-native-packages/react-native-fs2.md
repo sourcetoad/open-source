@@ -1,6 +1,5 @@
 ---
 title: React Native FS2
-sidebar_position: 5
 id: react-native-fs2
 ---
 

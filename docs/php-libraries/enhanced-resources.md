@@ -1,6 +1,5 @@
 ---
 title: Enhanced Resources
-sidebar_position: 4
 id: enhanced-resources
 ---
 

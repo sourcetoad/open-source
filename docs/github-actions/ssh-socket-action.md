@@ -1,6 +1,5 @@
 ---
 title: SSH Socket Setup GitHub Action
-sidebar_position: 6
 id: ssh-socket-action
 ---
 

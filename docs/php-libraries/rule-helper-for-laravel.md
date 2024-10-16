@@ -1,6 +1,5 @@
 ---
 title: Rule Helper for Laravel
-sidebar_position: 2
 id: rule-helper-for-laravel
 ---
 

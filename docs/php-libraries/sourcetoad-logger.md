@@ -1,6 +1,5 @@
 ---
 title: Sourcetoad Logger
-sidebar_position: 3
 id: logger
 ---
 
