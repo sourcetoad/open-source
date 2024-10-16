@@ -1,6 +1,5 @@
 ---
 title: Tizen Build GitHub Action
-sidebar_position: 2
 id: tizen-build-action
 ---
 

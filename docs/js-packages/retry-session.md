@@ -1,6 +1,5 @@
 ---
 title: RetrySession
-sidebar_position: 2
 id: retry-session
 ---
 

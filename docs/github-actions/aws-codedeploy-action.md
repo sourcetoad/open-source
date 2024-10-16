@@ -1,6 +1,5 @@
 ---
 title: AWS CodeDeploy Action
-sidebar_position: 1
 id: aws-codedeploy-action
 ---
 

@@ -1,6 +1,5 @@
 ---
 title: Soapy (XML)
-sidebar_position: 1
 id: soapy
 ---
 
