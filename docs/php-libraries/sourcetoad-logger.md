@@ -1,7 +1,6 @@
 ---
 title: Sourcetoad Logger
-sidebar_position: 3
-id: logger
+id: sourcetoad-logger
 ---
 
 _This package allows you to log important events, including what data is viewed by who._

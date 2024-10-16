@@ -1,6 +1,5 @@
 ---
 title: Vision Camera Plugin Barcode Scanner
-sidebar_position: 4
 id: vision-camera-plugin-barcode-scanner
 ---
 

@@ -1,6 +1,5 @@
 ---
 title: AWS S3 Delete Older Action
-sidebar_position: 5
 id: aws-s3-delete-after-action
 ---
 

@@ -1,6 +1,5 @@
 ---
 title: Add Badge
-sidebar_position: 3
 id: add-badge
 ---
 

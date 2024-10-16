@@ -1,6 +1,5 @@
 ---
 title: Bytey
-sidebar_position: 5
 id: bytey
 ---
 
