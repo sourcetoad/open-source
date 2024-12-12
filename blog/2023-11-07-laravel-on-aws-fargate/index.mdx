@@ -74,7 +74,7 @@ COPY ./ /var/www/html
 
 RUN chmod 755 /usr/bin/entrypoint.sh && \
 	chmod 777 /tmp && \
-	chown -R www-data.www-data /var/www && \
+	chown -R www-data:www-data /var/www && \
 	rm -rf /var/www/html/docker
 
 VOLUME /var/lib/amazon
