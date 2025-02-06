@@ -72,8 +72,8 @@ const config: Config = {
                 to: '/docs/js-packages',
               },
               {
-                label: 'PHP Packages',
-                to: '/docs/php-packages',
+                label: 'PHP Libraries',
+                to: '/docs/php-libraries',
               },
               {
                 label: 'React Native Packages',
