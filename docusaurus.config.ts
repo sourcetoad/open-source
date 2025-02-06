@@ -1,8 +1,8 @@
-// @ts-check
 import {themes as prismThemes} from 'prism-react-renderer';
+import type {Config} from '@docusaurus/types';
+import type * as Preset from '@docusaurus/preset-classic';
 
-/** @type {import('@docusaurus/types').Config} */
-const config = {
+const config: Config = {
   title: 'Open Source @ Sourcetoad',
   tagline: 'Our little slice of open source projects.',
   favicon: 'img/favicon.ico',
@@ -17,10 +17,9 @@ const config = {
   presets: [
     [
       'classic',
-      /** @type {import('@docusaurus/preset-classic').Options} */
-      ({
+      {
         docs: {
-          sidebarPath: './sidebars.js',
+          sidebarPath: './sidebars.ts',
           editUrl: 'https://github.com/sourcetoad/open-source/tree/main',
         },
         blog: {
@@ -30,14 +29,12 @@ const config = {
         theme: {
           customCss: './src/css/custom.css',
         },
-      }),
+      } satisfies Preset.Options,
     ],
   ],
   plugins: [
   ],
-  themeConfig:
-    /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
-    ({
+  themeConfig: {
       image: 'img/docusaurus-social-card.jpg',
       navbar: {
         title: 'Open Source @ Sourcetoad',
@@ -76,16 +73,20 @@ const config = {
             title: 'Community',
             items: [
               {
-                label: 'LinkedIn',
-                href: 'https://www.linkedin.com/company/sourcetoad/'
+                label: 'Facebook',
+                href: 'https://www.facebook.com/sourcetoad/',
+              },
+              {
+                label: 'Instagram',
+                href: 'https://www.instagram.com/sourcetoad/'
               },
               {
                 label: 'YouTube',
                 href: 'https://www.youtube.com/@Sourcetoad',
               },
               {
-                label: 'Twitter',
-                href: 'https://twitter.com/Sourcetoad',
+                label: 'LinkedIn',
+                href: 'https://www.linkedin.com/company/sourcetoad/'
               },
             ],
           },
@@ -114,7 +115,7 @@ const config = {
         darkTheme: prismThemes.dracula,
         additionalLanguages: ['bash', 'docker', 'json', 'ini', 'php'],
       },
-    }),
+    } satisfies Preset.ThemeConfig,
 };
 
 export default config;
