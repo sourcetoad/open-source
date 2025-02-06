@@ -64,8 +64,20 @@ const config: Config = {
             title: 'Docs',
             items: [
               {
-                label: 'Projects',
-                to: '/docs/intro',
+                label: 'GitHub Actions',
+                to: '/docs/github-actions',
+              },
+              {
+                label: 'JS Packages',
+                to: '/docs/js-packages',
+              },
+              {
+                label: 'PHP Libraries',
+                to: '/docs/php-libraries',
+              },
+              {
+                label: 'React Native Packages',
+                to: '/docs/react-native-packages',
               },
             ],
           },
@@ -99,7 +111,11 @@ const config: Config = {
               },
               {
                 label: 'Sourcetoad',
-                to: 'https://sourcetoad.com',
+                href: 'https://sourcetoad.com',
+              },
+              {
+                label: 'OnDeck',
+                href: 'https://ondeck.sourcetoad.com',
               },
               {
                 label: 'GitHub',
