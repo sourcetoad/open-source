@@ -9,8 +9,8 @@ Created out of a need to audit information for decades in an optimized packed wa
 
 It logged more than a regular audit package in a performant way. It logged information such as:
 
-* What data was viewed by who
-* What data was changed by who
+* What data was viewed by whom
+* What data was changed by whom
 * Authentication events
 
 This tracked information in tables that with some effort could replay activities made by a user. This was helpful when/if an audit was needed.
