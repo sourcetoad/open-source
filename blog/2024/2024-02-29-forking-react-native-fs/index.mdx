@@ -1,0 +1,42 @@
+---
+slug: 2024/forking-react-native-fs
+title: Forking React Native FS
+authors: [connort]
+tags: [react-native, react-native-fs]
+---
+
+As the year clocked into 2023 [a package](https://github.com/itinance/react-native-fs) we depended on exceeded a year without a merge with pull requests stacking. At this point we already had a few patches applied locally with patch package, but we decided to fork the package due to our dependency on it.
+
+{/* truncate */}
+
+It always struck us as a bit odd that a library named "native filesystem access" was responsible for not only filesystem access, but file downloading & uploading. It had grown to be a tad bit too large with support for Windows a good deal of platform specific features.
+
+The beauty of forking open source is we can take this great base and adapt it to our needs, which started with shrinking the scope of this project & adding a few features. We started with a few goals in mind:
+
+ * Remove the Windows support - We only target iOS and Android
+ * Remove the upload support - We have existing functionality for this
+ * Introduce [ArrayBuffer](https://github.com/mrousavy/react-native-blob-jsi-helper) support.
+ * Introduce [Android MediaStore](https://developer.android.com/reference/android/provider/MediaStore) support.
+
+So throughout 2023 and into 2024 we slimmed the repository and pushed some updates introducing [react-native-fs2](https://github.com/sourcetoad/react-native-fs2).
+
+One thing we quickly learned is that taking a plugin under your wing helps you discover so many improvements. One thing we were surprised to see is that the library was leaking resources and not closing them.
+
+With a run of strict mode this became apparent.
+
+```text
+StrictMode policy violation: android.os.strictmode.LeakedClosableViolation: A resource was acquired at attached stack trace but never released. See java.io.Closeable for information on avoiding resource leaks. (Ask Gemini)
+  	at android.os.StrictMode$AndroidCloseGuardReporter.report(StrictMode.java:2011)
+  Caused by: java.lang.Throwable: Explicit termination method 'close' not called
+  	at com.rnfs2.RNFSManager.getInputStream(RNFSManager.java:102)
+  	at com.rnfs2.RNFSManager.readFile(RNFSManager.java:219)
+  	at com.facebook.jni.NativeRunnable.run(Native Method)
+  	at java.lang.Thread.run(Thread.java:1012)
+```
+
+For a library so wildly used (~500,000 downloads a week) that specialized in file system access it was odd to see it leaking resources. Thankfully with modern React Native having a minimum Android supported version that supported [try-with-resources](https://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html) allowed us to do some easy cleanup.
+
+The library is close to a drop in replacement, except for the features we removed. We welcome anyone to join our fork if it fits your needs.
+
+* NPM: https://www.npmjs.com/package/react-native-fs2
+* GitHub: https://github.com/sourcetoad/react-native-fs2
