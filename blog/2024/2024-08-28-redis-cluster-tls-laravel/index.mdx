@@ -1,0 +1,44 @@
+---
+slug: 2024/redis-cluster-with-tls-in-laravel
+title: Redis Cluster with TLS in Laravel
+authors: [justinw, connort]
+tags: [laravel, redis, redis-cluster, tls]
+---
+
+## Introduction
+
+As a project we built evolved with websockets becoming a far more important feature we wanted to move off of a regular implementation of Redis onto a Redis Cluster to scale for larger usage while giving us the safety of failover and redundancy.
+
+In order to test this we took our `docker-compose.yml` file and set up a few nodes to replicate a cluster that we might have configured in AWS.
+
+```
+valkey-cluster-1:
+  image: bitnami/valkey-cluster:7.2
+  environment:
+    - ALLOW_EMPTY_PASSWORD=yes
+    - VALKEY_CLUSTER_REPLICAS=0
+    - VALKEY_NODES=valkey-cluster-1 valkey-cluster-2 valkey-cluster-3
+valkey-cluster-2:
+  image: bitnami/valkey-cluster:7.2
+  environment:
+    - ALLOW_EMPTY_PASSWORD=yes
+    - VALKEY_CLUSTER_REPLICAS=0
+    - VALKEY_NODES=valkey-cluster-1 valkey-cluster-2 valkey-cluster-3
+valkey-cluster-3:
+  image: bitnami/valkey-cluster:7.2
+  environment:
+    - ALLOW_EMPTY_PASSWORD=yes
+    - VALKEY_CLUSTER_REPLICAS=0
+    - VALKEY_NODES=valkey-cluster-1 valkey-cluster-2 valkey-cluster-3
+    - VALKEY_CLUSTER_CREATOR=yes
+```
+
+:::note
+
+While Valkey is not Redis we wanted to take this chance to explore compatibility with the alternative Redis fork.
+
+:::
+
+
+{/* truncate */}
+
