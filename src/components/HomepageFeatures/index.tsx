@@ -5,14 +5,14 @@ import styles from './styles.module.css';
 
 type FeatureItem = {
     title: string;
-    Svg: React.ComponentType<React.ComponentProps<'svg'>>;
+    img: string;
     description: ReactNode;
 };
 
 const FeatureList: FeatureItem[] = [
   {
     title: 'Laravel/PHP Packages',
-    Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
+    img: require('@site/static/img/laravel-php-transparent.png').default,
     description: (
       <>
           We've crafted a suite of robust helper packages for our Laravel/PHP projects, simplifying everything from SOAP clients to validation wrappers, all designed to elevate your development experience.
@@ -21,7 +21,7 @@ const FeatureList: FeatureItem[] = [
   },
   {
     title: 'GitHub Actions',
-    Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
+    img: require('@site/static/img/deployment-transparent.png').default,
     description: (
       <>
           GitHub is at the core of our deployment strategies. We've tailored solutions using AWS CodeDeploy and ECS, filling gaps that existing tools left behind, ensuring a seamless deployment process.
@@ -30,7 +30,7 @@ const FeatureList: FeatureItem[] = [
   },
   {
     title: 'React Native',
-    Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
+    img: require('@site/static/img/react-native-transparent.png').default,
     description: (
       <>
           Our expertise in React Native is reflected in the apps we've developed for our clients. Along the way, we've revived and released open-source projects to contribute back to the community.
@@ -39,11 +39,11 @@ const FeatureList: FeatureItem[] = [
   },
 ];
 
-function Feature({title, Svg, description}: FeatureItem) {
+function Feature({title, img, description}: FeatureItem) {
   return (
     <div className={clsx('col col--4')}>
       <div className="text--center">
-        <Svg className={styles.featureSvg} role="img" />
+        <img src={img} role="img" />
       </div>
       <div className="text--center padding-horiz--md">
         <Heading as="h3">{title}</Heading>
