@@ -15,7 +15,7 @@ We wanted to build a singular action - as all officially offered solutions worke
 4. Triggers a deployment of the service defined by the `ecs_service_name` input.
 5. Polls the service until the deployment is complete with informational output on the Failed, Pending, Desired and Running tasks.
 
-This allowed us to maintain roughly the same workflow we had with EC2 and a [similar action](./aws-codedeploy-action.md) we built
+This allowed us to maintain roughly the same workflow we had with EC2 and a [similar action](./aws-codedeploy-action.md) we built.
 
 :::info
 
