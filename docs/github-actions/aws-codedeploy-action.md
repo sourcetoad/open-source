@@ -15,8 +15,6 @@ During our move from Jenkins to GitHub Actions for CI/CD we wanted a solution to
 
 Over time, we've migrated more repositories towards ECS resulting in this action being less used. However, it is still a useful tool for those who prefer to use CodeDeploy for their deployments.
 
-```yaml
-
 :::info
 
 Find on GitHub at [sourcetoad/aws-codedeploy-action](https://github.com/sourcetoad/aws-codedeploy-action)

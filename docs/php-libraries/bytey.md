@@ -7,7 +7,7 @@ _A simple implementation of [Google's Polyline Encoding](https://developers.goog
 
 Bytey was introduced to help with the encoding of polylines for use with Google Maps. It is a simple implementation of the algorithm that is used to encode and decode polylines.
 
-The idea over time was to introduce more algorithms, but the need for this as not arrived.
+The idea over time was to introduce more algorithms, but the need for this has not arrived.
 
 :::info
 
