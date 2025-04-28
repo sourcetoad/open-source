@@ -5,9 +5,9 @@ authors: [justinw, connort]
 tags: [laravel, redis, redis-cluster, tls]
 ---
 
-## Introduction
-
 As a project we built evolved with websockets becoming a far more important feature we wanted to move off of a regular implementation of Redis onto a Redis Cluster to scale for larger usage while giving us the safety of failover and redundancy.
+
+{/* truncate */}
 
 In order to test this we took our `docker-compose.yml` file and set up a few nodes to replicate a cluster that we might have configured in AWS.
 
@@ -39,6 +39,296 @@ While Valkey is not Redis we wanted to take this chance to explore compatibility
 
 :::
 
+After these containers booted up we found a [little test php script](https://gist.github.com/michael-grunder/ec1cd54b321c454d63864091ff288401) that can confirm your PhpRedis is working great.
 
-{/* truncate */}
+```text
+7ed6ecafd4a4:/code# php cluster-quick-check.php --host sourcetoad_valkey_cluster_1 --port 6379
+Checking general cluster INFO: OK
+Checking [0:5460] (172.18.0.28:6379): OK
+Checking [5461:10922] (172.18.0.29:6379): OK
+Checking [10923:16383] (172.18.0.30:6379): OK
+Attempting to set key 'phpredis-cluster-key:0'
+Success setting 'phpredis-cluster-key:0'
+Attempting to set key 'phpredis-cluster-key:1'
+Success setting 'phpredis-cluster-key:1'
+Attempting to set key 'phpredis-cluster-key:9'
+Redirected to '172.18.0.28:6379'
+Redirected to '172.18.0.30:6379'
+Success setting 'phpredis-cluster-key:9'
+Cluster seems OK
+7ed6ecafd4a4:/code#
+```
 
+Now we had the confidence of a working cluster and re-configured our Laravel installation to point to that cluster. With a single change to our `.env` we refreshed and were met with some crashes.
+
+ * `MOVED 15031 172.18.0.30:6379`
+
+Of course that would be expected. We haven't changed anything yet, so off to the Laravel Docs we went to the [Redis Clusters section](https://laravel.com/docs/12.x/redis#clusters). The docs guided you on introducing a `clusters.default` array into your existing `config/database.php` file.
+
+At the time of a base Laravel 12 install. The file would look like this:
+
+```php
+/*
+|--------------------------------------------------------------------------
+| Redis Databases
+|--------------------------------------------------------------------------
+|
+| Redis is an open source, fast, and advanced key-value store that also
+| provides a richer body of commands than a typical key-value system
+| such as Memcached. You may define your connection settings here.
+|
+*/
+
+'redis' => [
+  'client' => env('REDIS_CLIENT', 'phpredis'),
+  'options' => [
+    'cluster' => env('REDIS_CLUSTER', 'redis'),
+    'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
+    'persistent' => env('REDIS_PERSISTENT', false),
+  ],
+  'default' => [
+    'url' => env('REDIS_URL'),
+    'host' => env('REDIS_HOST', '127.0.0.1'),
+    'username' => env('REDIS_USERNAME'),
+    'password' => env('REDIS_PASSWORD'),
+    'port' => env('REDIS_PORT', '6379'),
+    'database' => env('REDIS_DB', '0'),
+  ],
+  'cache' => [
+    'url' => env('REDIS_URL'),
+    'host' => env('REDIS_HOST', '127.0.0.1'),
+    'username' => env('REDIS_USERNAME'),
+    'password' => env('REDIS_PASSWORD'),
+    'port' => env('REDIS_PORT', '6379'),
+    'database' => env('REDIS_CACHE_DB', '1'),
+  ],
+],
+```
+
+So we worked to add in a new section as described like this:
+
+```php
+'clusters' => [
+  'default' => [
+    [
+      'url' => env('REDIS_URL'),
+      'host' => env('REDIS_HOST', '127.0.0.1'),
+      'username' => env('REDIS_USERNAME'),
+      'password' => env('REDIS_PASSWORD'),
+      'port' => env('REDIS_PORT', '6379'),
+      'database' => env('REDIS_DB', '0'),
+    ],
+  ]
+]
+```
+
+Very quickly we learned this level of configuration was not for us due to the way Laravel operates. If we look at the pseudocode of how Laravel loads a Redis connection we'd see this:
+
+```php
+$name = $name ?: 'default';
+$options = $this->config['options'] ?? [];
+
+if (isset($this->config[$name])) {
+  return $this->resolveConnection($this->config[$name]);
+}
+
+if (isset($this->config['clusters'][$name])) {
+  return $this->resolveCluster($name);
+}
+
+// https://github.com/laravel/framework/blob/12.x/src/Illuminate/Redis/RedisManager.php#L104
+```
+
+Since we had a `redis.default` block as well as a `redis.clusters.default` block our non-cluster connection was always loaded. The code in this resolve method has not changed in 7 years, but we are thinking that perhaps the loading of the cluster should go ahead of the normal connection. That would mean once you add the optional `clusters` block with connection name - it would win loading if both a cluster and non-cluster connection had the same name.
+
+However, that is also not preferred as that change would mean the instant a code change introduced a `redis.clusters.default` block - it would win. This might explain why this code hasn't changed in almost a decade.
+
+So we rewrote our configuration block slightly to this:
+
+```php
+'clusters' => [
+  'aws' => [
+    [
+      'url' => env('REDIS_CLUSTER_URL'),
+      'host' => env('REDIS_CLUSTER_HOST', '127.0.0.1'),
+      'username' => env('REDIS_CLUSTER_USERNAME'),
+      'password' => env('REDIS_CLUSTER_PASSWORD'),
+      'port' => env('REDIS_CLUSTER_PORT', '6379'),
+      'database' => env('REDIS_CLUSTER_DB', '0'),
+    ],
+  ],
+],
+```
+
+This gave us 2 major advantages:
+
+1. We could deploy this change without configuring the cluster with no change.
+2. We could leverage a different env for cluster and non-cluster in case we had to revert quickly.
+
+The downside to this is our connection was no longer named `default`. So in order to switch to our cluster connection, we invoked the connection name of `aws` which was shorthand for our ElastiCache Valkey instance in AWS.
+
+Our `.env` to swap to clusters then was roughly:
+
+```text
+QUEUE_CONNECTION=redis
+
+SESSION_DRIVER=redis
+SESSION_CONNECTION=aws
+
+CACHE_STORE=redis
+CACHE_PREFIX=alpha_
+
+REDIS_CLUSTER_HOST=clustercfg.project-redis-cluster.xxxxxx.use1.cache.amazonaws.com
+REDIS_CLUSTER_PORT=6379
+REDIS_PERSISTENCE=true
+REDIS_PREFIX=alpha_
+REDIS_CACHE_CONNECTION=aws
+REDIS_CACHE_LOCK_CONNECTION=aws
+REDIS_QUEUE_CONNECTION=aws
+```
+
+So lets break this down:
+
+ * Anything `_DRIVER`, `_STORE` or `_CONNECTION` is simply pointing that feature of Laravel to our new Redis Cluster `aws` connection.
+ * Anything `REDIS_CLUSTER_` is for configuration of our Redis Cluster.
+ * Anything `_PREFIX` is because Redis Clusters does NOT support multiple databases. So we prefix items to prevent collisions on a shared server.
+ * `REDIS_PERSISTENCE` keeps Laravel using the same connection instead of opening a connection on each Redis usage.
+
+With all of that we booted up our system and clicked around. We had a few crashes that became apparent when utilizing the cache or queues. These errors were:
+
+ * `Cannot use 'DEL' with redis-cluster`
+ * `Cannot use 'EVAL'  with redis-cluster`
+
+So before taking to Google we first checked the [Queue documentation](https://laravel.com/docs/12.x/queues#redis) on Laravel and found a call-out.
+
+:::warning
+
+If your Redis queue connection uses a Redis Cluster, your queue names must contain a key hash tag. This is required in order to ensure all the Redis keys for a given queue are placed into the same hash slot:
+
+```php
+'redis' => [
+  'queue' => env('REDIS_QUEUE', '{default}'),
+],
+```
+
+:::
+
+So we understood the problem, but with our complex queue system and multiple lower environments on the same cluster we had to get creative to implement this properly. We introduced a new custom `QueueServiceProvider`
+
+```php
+<?php
+declare(strict_types=1);
+
+namespace App\Support\RedisCluster;
+
+class QueueServiceProvider extends \Illuminate\Queue\QueueServiceProvider
+{
+    protected function registerRedisConnector($manager): void
+    {
+        $manager->addConnector('redis', function () {
+            // @phpstan-ignore-next-line
+            return new RedisClusterConnector($this->app['redis']);
+        });
+    }
+}
+```
+
+This loaded our custom `RedisClusterConnector`, which was basically a shell to our key override the queue class.
+
+```php
+<?php
+declare(strict_types=1);
+
+namespace App\Support\RedisCluster;
+
+use Illuminate\Queue\Connectors\RedisConnector;
+
+class RedisClusterConnector extends RedisConnector
+{
+    public function connect(array $config): RedisClusterQueue
+    {
+        return new RedisClusterQueue(
+            redis: $this->redis,
+            default: $config['queue'],
+            connection: $config['connection'] ?? $this->connection,
+            retryAfter: $config['retry_after'] ?? 60,
+            blockFor: $config['block_for'] ?? null,
+            dispatchAfterCommit: $config['after_commit'] ?? null,
+            migrationBatchSize: $config['migration_batch_size'] ?? -1
+        );
+    }
+}
+```
+
+Now our custom `RedisClusterQueue` could be loaded.
+
+```php
+<?php
+declare(strict_types=1);
+
+namespace App\Support\RedisCluster;
+
+use Illuminate\Queue\RedisQueue;
+use Illuminate\Support\Facades\App;
+
+class RedisClusterQueue extends RedisQueue
+{
+    public function getQueue($queue): string
+    {
+        $isCluster = config('queue.connections.redis.connection') === 'aws';
+
+        if ($isCluster) {
+            $queueName = ($queue ?: $this->default);
+            return sprintf('{queues:%s}', $queueName);
+        }
+
+        return parent::getQueue($queue);
+    }
+}
+```
+
+All we had to do was remove the stock loader and load our own.
+
+```php
+// Illuminate\Queue\QueueServiceProvider::class,
+App\Support\RedisCluster\QueueServiceProvider::class,
+```
+
+This code would automatically build a key hash tag based on the queue name. Sure enough with successful queue tests we found the `keys *` command breaking down our naming pattern.
+
+```text
+127.0.0.1:6379> keys *
+1) "local_{queues:default}:notify"
+2) "local_{queues:default}"
+3) "local_{queues:openai}"
+4) "local_{queues:openai}:notify"
+5) "local_{queues:openai-moderation}"
+6) "local_{queues:openai-moderation}:notify"
+127.0.0.1:6379>
+```
+
+This was working great
+
+---
+
+#### Common Errors
+
+##### `Cannot use 'EVAL' with redis-cluster`
+* You are missing a key hash tag `{example}` in your Redis key.
+
+##### `MOVED 15031 172.18.0.30:6379`
+
+* You are sending cluster commands, but your connection (PhpRedis) is not in cluster mode.
+* Ensure your `.env` / `config/database.php` is configured properly.
+
+##### `Can't communicate with any node in the cluster`
+
+* Your cluster server is unreachable (or requiring SSL) and you aren't providing it.
+
+##### `Couldn't map cluster keyspace using any provided seed`
+
+* Your cluster server is unreachable, generally because its expecting TLS and you aren't sending it.
+
+##### Laravel Horizon won't work with a Cluster
+
+* As of April 28, 2025 - Horizon [does not officially support](https://github.com/laravel/horizon/issues/274#issuecomment-457218217) Redis Clusters.
