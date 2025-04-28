@@ -194,7 +194,7 @@ So lets break this down:
  * Anything `_PREFIX` is because Redis Clusters does NOT support multiple databases. So we prefix items to prevent collisions on a shared server.
  * `REDIS_PERSISTENCE` keeps Laravel using the same connection instead of opening a connection on each Redis usage.
 
-With all of that we booted up our system and clicked around. We had a few crashes that became apparent when utilizing the cache or queues. These errors were:
+With all of that we booted up our system and clicked around. We had a few crashes that became apparent when utilizing the queues. These errors were:
 
  * `Cannot use 'DEL' with redis-cluster`
  * `Cannot use 'EVAL'  with redis-cluster`
@@ -307,7 +307,49 @@ This code would automatically build a key hash tag based on the queue name. Sure
 127.0.0.1:6379>
 ```
 
-This was working great
+This was working great and allowed us to leverage a cluster connection without having to remember to change any specific value. Any usage of our queue system would automatically produce a key that was safe for cluster usage. Now we were ready to ramp it up with TLS support. At this point with our confidence working with a local cluster we were ready to move to AWS and test our cluster with TLS.
+
+We spun up an ElastiCache instance and made some configurations:
+
+ * Multi-AZ: Enabled
+ * Encrypted at Rest: Enabled
+ * Encrypted in Transit: Enabled
+ * Transit Encryption Mode: Required
+
+These tests didn't work too well with errors like:
+
+ * "Can't communicate with any node in the cluster"
+ * "Couldn't map cluster keyspace using any provided seed"
+
+This took us a bit, but it seemed PhpRedis was not configured to use TLS. We found digging through [PhpRedis documentation](https://github.com/phpredis/phpredis/blob/develop/cluster.md#declaring-a-cluster-with-an-array-of-seeds) that we needed to set `verify_peer` to `false` in our config. So we just needed to know how to pass a value to the `new RedisCluster` execution.
+
+Fortunately, we can peek [Laravel sourcecode](https://github.com/laravel/framework/blob/12.x/src/Illuminate/Redis/Connectors/PhpRedisConnector.php#L199-L203) to see how it builds the RedisCluster, which was via the `context` array element.
+
+```php {8-10}
+'redis' => [
+  'client' => env('REDIS_CLIENT', 'phpredis'),
+    'options' => [
+      'cluster' => env('REDIS_CLUSTER', 'redis'),
+      'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
+      'persistent' => env('REDIS_PERSISTENCE', true),
+      'timeout' => env('REDIS_TIMEOUT', 5),
+      'context' => [
+        'verify_peer' => env('REDIS_SSL_VERIFY_PEER', false),
+      ],
+    ],
+  ],
+```
+Once we had a `context` block that introduced `verify_peer` - we had a successful Redis Cluster connection with TLS. However, for local usage this change forced TLS which was not preferred. We had to get creative reading the connection name and setting the context based on that.
+
+To recap our journey:
+
+* We set up our `docker-compose.yml` to run a Redis Cluster.
+* We configured our `.env` to point to the cluster.
+* We added a `clusters` block to our `config/database.php` file using a non-default name of `aws`.
+* We created a custom `QueueServiceProvider` to override the default Redis connection to use a key hash tag.
+* We changed the `context` block to include `verify_peer` to allow TLS connections on the base Redis options.
+
+Now we tested out a few fault scenarios with failover to ensure our cluster was working as expected. As long as our timeout was set to a reasonable value (5 seconds) the node failover worked as expected and recovered.
 
 ---
 
@@ -327,7 +369,7 @@ This was working great
 
 ##### `Couldn't map cluster keyspace using any provided seed`
 
-* Your cluster server is unreachable, generally because its expecting TLS and you aren't sending it.
+* Your cluster server is unreachable, generally because its requiring/preferring TLS and you aren't sending it.
 
 ##### Laravel Horizon won't work with a Cluster
 
