@@ -307,6 +307,12 @@ This code would automatically build a key hash tag based on the queue name. Sure
 127.0.0.1:6379>
 ```
 
+:::info
+
+The important aspect of a key hash tag is to ensure all keys for a given queue are placed into the same hash slot.
+
+:::
+
 This was working great and allowed us to leverage a cluster connection without having to remember to change any specific value. Any usage of our queue system would automatically produce a key that was safe for cluster usage. Now we were ready to ramp it up with TLS support. At this point with our confidence working with a local cluster we were ready to move to AWS and test our cluster with TLS.
 
 We spun up an ElastiCache instance and made some configurations:
@@ -321,7 +327,7 @@ These tests didn't work too well with errors like:
  * "Can't communicate with any node in the cluster"
  * "Couldn't map cluster keyspace using any provided seed"
 
-This took us a bit, but it seemed PhpRedis was not configured to use TLS. We found digging through [PhpRedis documentation](https://github.com/phpredis/phpredis/blob/develop/cluster.md#declaring-a-cluster-with-an-array-of-seeds) that we needed to set `verify_peer` to `false` in our config. So we just needed to know how to pass a value to the `new RedisCluster` execution.
+This took us a bit, but it seemed PhpRedis was not configured to use TLS. We found digging through [PhpRedis documentation](https://github.com/phpredis/phpredis/blob/develop/cluster.md#declaring-a-cluster-with-an-array-of-seeds) that we needed to set `verify_peer` in our config. So we just needed to know how to pass a value to the `new RedisCluster` execution.
 
 Fortunately, we can peek [Laravel sourcecode](https://github.com/laravel/framework/blob/12.x/src/Illuminate/Redis/Connectors/PhpRedisConnector.php#L199-L203) to see how it builds the RedisCluster, which was via the `context` array element.
 
@@ -339,7 +345,9 @@ Fortunately, we can peek [Laravel sourcecode](https://github.com/laravel/framewo
     ],
   ],
 ```
-Once we had a `context` block that introduced `verify_peer` - we had a successful Redis Cluster connection with TLS. However, for local usage this change forced TLS which was not preferred. We had to get creative reading the connection name and setting the context based on that.
+So we added a new `context` block to our `config/database.php` file including `verify_peer`.
+
+We had a successful Redis Cluster connection with TLS! Our application was working great with a Redis Cluster communicating over TLS. However, for local usage this change forced TLS which was not preferred. We had to get creative reading the connection name and array merging the context block conditionally.
 
 To recap our journey:
 
