@@ -25,7 +25,7 @@ If we roll the clock back to the era of [Laravel Mix](https://github.com/laravel
 }
 ```
 
-In some cases these Javascript files were rather large hitting sizes over multiple megabytes. This meant any changes to business code required a re-download of a large file. Webpack offered solutions like code splitting which could do library extraction pretty well to separate files, but was rather complex to code splitting based on business logic itself.
+In some cases these Javascript files were rather large hitting sizes over multiple megabytes. This meant any changes to business code required a re-download of a large file. Webpack offered solutions like code splitting which could do library extraction pretty well to separate files, but was rather complex to code split based on business logic itself.
 
 For example in Laravel Mix you might do something like this to cut a large file into smaller ones based on vendor dependencies.
 
