@@ -16,7 +16,7 @@ We went on a journey to fix this issue and this blog is our findings.
 
 {/* truncate */}
 
-If we roll the clock back to the era of [Laravel Mix](https://github.com/laravel-mix/laravel-mix) we'd encounter a wrapper around the ever powerful Webpack. The way this was configured by default in Laravel was to produce one large minified and transpiled blob of Javascript compatible for all web browsers. This file was named `app.js` in most instances and was served for your end users. This made your Mix manifest file which was responsible for cache busting relatively easy with only 1 or 2 entries in an unconfigured setup.
+If we roll the clock back to the era of [Laravel Mix](https://github.com/laravel-mix/laravel-mix) we'd encounter a wrapper around the ever powerful Webpack. The way this was configured by default in Laravel was to produce one large minified and transpiled blob of Javascript compatible for all web browsers. This file was named `app.js` in most instances and was served for your end users. This made your Mix manifest file — which was responsible for cache busting relatively — easy with only 1 or 2 entries in an unconfigured setup.
 
 ```json
 {
@@ -25,7 +25,7 @@ If we roll the clock back to the era of [Laravel Mix](https://github.com/laravel
 }
 ```
 
-In some cases these Javascript files were rather large hitting sizes over multiple megabytes. So for any change to your business code to require a re-download of a large file was not preferred. Webpack offered solutions like code splitting which could do library extraction pretty well to separate files, but was rather complex to code splitting based on business logic itself.
+In some cases these Javascript files were rather large hitting sizes over multiple megabytes. This meant any changes to business code required a re-download of a large file. Webpack offered solutions like code splitting which could do library extraction pretty well to separate files, but was rather complex to code splitting based on business logic itself.
 
 For example in Laravel Mix you might do something like this to cut a large file into smaller ones based on vendor dependencies.
 
@@ -39,7 +39,7 @@ mix.extract();
 // `vendor.js` will contain all other used libraries from node_modules
 ```
 
-So when Vite was announced as the new default in Laravel and removed that entire motto for a more component based file compilation we were excited to try it out. It was such a different experience with our comparable manifest file (`manifest.json`) showing a much larger configuration file.
+When Vite was announced as the new default in Laravel and removed that entire motto for a more component based file compilation we were excited to try it out. It was such a different experience with our comparable manifest file (`manifest.json`) showing a much larger configuration file.
 
 ```json
 {
@@ -104,7 +104,7 @@ sequenceDiagram
     NewContainer--xUser: 404 JS module not found
 ```
 
-As the graph above shows - a user might be trying to load an asset from the newly deployed container that does not exist as it only existed on the previous container! This creates an ugly issue and was not something we experienced with Laravel Mix, because we only had 1 massive file downloaded. So naturally an end user got the entire frontend downloaded on initial load on our older solution.
+As the graph above shows - a user might be trying to load an asset from the newly deployed container that does not exist as it only existed on the previous container! This creates an ugly issue and was not something we experienced with Laravel Mix, because we only had 1 massive file downloaded. Naturally an end user got the entire frontend downloaded on initial load on our older solution.
 
 This is a common problem known as "version skew" and has a few different methods to fix:
 
