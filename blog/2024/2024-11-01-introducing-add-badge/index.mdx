@@ -5,6 +5,39 @@ authors: [connort, erikp]
 tags: [nodejs, wasm, imagick, badge, badging, fastlane]
 ---
 
-As our application pipeline elevated into ephemeral GitHub Action containers our existing Fastlane plugin codenamed "badge" was showing some age. It depended on a few native dependencies and took a bit of time to install on our runners. We saw this chance to leverage some exciting new technology and produce an alternative.
+import ImageRow from '@site/src/components/ImageRow';
+import oldBadge1 from './old-badge.png';
+import oldBadge2 from './old-badge-2.png';
+
+As our application pipeline elevated into ephemeral GitHub Action containers our existing Fastlane plugin codenamed "[badge](https://github.com/HazAT/badge)" was showing some age. It depended on a few native dependencies and took a bit of time to install on our runners. We saw this chance to leverage some exciting new technology and produce an alternative.
 
 {/* truncate */}
+
+For context badging is the art of adding little ribbons around your application icon to more easily denote different builds (Beta, Alpha) during development. Thus, in late 2015 when [Fastlane](https://fastlane.tools/) was exploding in popularity to automate application builds - we found success using the badge plugin.
+
+<ImageRow
+  images={[
+    {src: oldBadge1},
+    {src: oldBadge2}
+  ]}
+  />
+
+It was great for almost an entire decade, but like some software it showed some sign of decay. We noticed that as our build machines evolved packages like Librsvg and ImageMagick had compatibility issues. We got to work envisioning a new plugin to badge our applications.
+
+We knew the power behind ImageMagick, and we wanted to stick with it, but we wanted to leverage the tool without the effort of installing binaries onto runners. Thankfully WASM (WebAssembly) had matured as a solution for this. We found an open source library called [magick-wasm](https://github.com/dlemstra/magick-wasm). It offered an elegant API to work with ImageMagick leveraging a WASM integration for the ImageMagick binary itself.
+
+```ts
+import { readFileSync } from 'node:fs';
+import { initializeImageMagick, Magick } from '@imagemagick/magick-wasm';
+
+const wasmBytes = readFileSync(
+    require.resolve('@imagemagick/magick-wasm/magick.wasm'),
+);
+initializeImageMagick(wasmBytes).then(() => {
+    console.log(Magick.imageMagickVersion);
+});
+```
+
+With a few short lines of code we were moving and a library was being born. We wanted to keep the behavior we were used to which allowed us to bulk edit images and modify them in place. Our use-case would be a build pipeline changing a variety of Android and iOS images to badge the Beta builds. The features our plugin offered expanded towards:
+
+TODO
