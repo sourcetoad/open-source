@@ -11,13 +11,12 @@ interface ImageRowProps {
 
 export default function ImageRow({ images }: ImageRowProps) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-      {images.map((image, i) => (
+    <div style={{ display: 'flex', justifyContent: 'space-evenly', marginBottom: '1rem' }}>
+      {images.map((image) => (
         <img
-          key={i}
+          key={image.src}
           src={image.src}
           alt={image.alt || ''}
-          style={{ width: `${100 / images.length - 2}%` }}
         />
       ))}
     </div>
