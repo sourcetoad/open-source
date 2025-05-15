@@ -6,6 +6,7 @@ import styles from './styles.module.css';
 type FeatureItem = {
     title: string;
     img: string;
+    url: string;
     description: ReactNode;
 };
 
@@ -13,6 +14,7 @@ const FeatureList: FeatureItem[] = [
   {
     title: 'Laravel/PHP Packages',
     img: require('@site/static/img/laravel-php-transparent.png').default,
+    url: 'docs/php-libraries',
     description: (
       <>
           We've crafted a suite of robust helper packages for our Laravel/PHP projects, simplifying everything from SOAP clients to validation wrappers, all designed to elevate your development experience.
@@ -22,6 +24,7 @@ const FeatureList: FeatureItem[] = [
   {
     title: 'GitHub Actions',
     img: require('@site/static/img/deployment-transparent.png').default,
+    url: 'docs/github-actions',
     description: (
       <>
           GitHub is at the core of our deployment strategies. We've tailored solutions using AWS CodeDeploy and ECS, filling gaps that existing tools left behind, ensuring a seamless deployment process.
@@ -31,6 +34,7 @@ const FeatureList: FeatureItem[] = [
   {
     title: 'React Native',
     img: require('@site/static/img/react-native-transparent.png').default,
+    url: 'docs/react-native-packages',
     description: (
       <>
           Our expertise in React Native is reflected in the apps we've developed for our clients. Along the way, we've revived and released open-source projects to contribute back to the community.
@@ -39,12 +43,12 @@ const FeatureList: FeatureItem[] = [
   },
 ];
 
-function Feature({title, img, description}: FeatureItem) {
+function Feature({title, img, url, description}: FeatureItem) {
   return (
     <div className={clsx('col col--4')}>
-      <div className="text--center">
+      <a href={url} className="text--center">
         <img src={img} role="img" />
-      </div>
+      </a>
       <div className="text--center padding-horiz--md">
         <Heading as="h3">{title}</Heading>
         <p>{description}</p>
