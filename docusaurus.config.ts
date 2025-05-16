@@ -30,6 +30,8 @@ const config: Config = {
         },
         blog: {
           showReadingTime: true,
+          blogSidebarCount: 'ALL',
+          blogSidebarTitle: 'All Posts',
           editUrl: 'https://github.com/sourcetoad/open-source/tree/main',
         },
         theme: {
