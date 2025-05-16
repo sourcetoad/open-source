@@ -30,7 +30,33 @@ We did start with a bit of research if any library existed for this, but nothing
 
 You can see how `38.5` became `_p~iF` and `-120.2` became `~ps|U`. The first coordinate doesn't have much of a cost savings, but as the coordinate pairs continue and each pair has the offset from the previous you can tell how the data savings begin to take place.
 
-We wrote a quick PHPUnit test to confirm our implementation of the algorithm, and it matched Google's documentation.
+Imagine if we went to draw a box around our office we might get the coordinate pairs of:
+
+* `28.03630, -82.49009`
+* `28.03654, -82.49009`
+* `28.03655, -82.49099`
+* `28.03629, -82.49100`
+* `28.03630, -82.49009`
+
+This helps establish the point that most coordinates are just small iterations of the previous coordinate -- not shifting much in terms of the positioning. If we were to render those with a 19 zoom we'd get this image.
+
+<div class="text--center">
+  ![](./static-map-google.png)
+</div>
+
+This would form a URL that compounded the coordinate pairs to draw the lines.
+
+```
+&markers=28.03630,-82.49009,28.03654,-82.49009,28.03655,-82.49099,28.03629,-82.49100,28.03630,-82.49009
+```
+
+If we apply the algorithm we see a much smaller URL decreasing 94 characters to 22.
+
+```
+&markers={ybjD`jnvNo@?ArDr@@AuD
+```
+
+This was a savings of ~75% less characters and was promising for a real integration. We wrote a quick PHPUnit test to confirm our implementation of the algorithm, and it matched Google's documentation.
 
 ```php
 #[DataProvider('googleDataProvider')]
@@ -65,7 +91,7 @@ public static function googleDataProvider(): array {
 }
 ```
 
-So we took our affected entity that was generating a 19.5k character URL and ran it through the algorithm. The new URL was 3.3k characters, which suggested an 83% reduction in character length. A few more real life tests, and we had a fix out the door and a new package built.
+So we took our affected entity that was generating a 19.5k character length URL and ran it through the algorithm. The new URL was 3.3k characters, which suggested an 83% reduction in length in a more real life example. A few more real life tests, and we had a fix out the door and a new package built.
 
 Thus, [Bytey](https://github.com/sourcetoad/Bytey) was born.
 
