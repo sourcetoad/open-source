@@ -41,6 +41,15 @@ const config: Config = {
     ],
   ],
   plugins: [
+    [
+      "@dipakparmar/docusaurus-plugin-umami",
+      /** @type {import('@dipakparmar/docusaurus-plugin-umami').Options} */
+      ({
+        websiteID: "a6bdd4b5-c91d-4c6d-a083-bd0fe9617dfd",
+        analyticsDomain: "pad-data.sourcetoadtest.com",
+        scriptName: "pulse",
+      }),
+    ]
   ],
   themeConfig: {
       image: 'img/docusaurus-social-card.jpg',
