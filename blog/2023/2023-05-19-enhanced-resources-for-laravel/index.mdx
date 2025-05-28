@@ -1,0 +1,113 @@
+---
+slug: 2023/enhanced-resources-for-laravel
+title: Enhanced Resources for Laravel
+authors: [connort, jasonj]
+tags: [php, resources, fractal, responses, laravel]
+---
+
+As engineers of Laravel in the early days of the framework a common thing to develop was an API. Laravel prior to version 5.5 did not offer an elegant way to prepare/format API responses. Historically it worked by calling `toArray()` off your model instance.
+
+For example this pattern of leveraging the `$hidden` property would exclude any of those attributes during serialization which was helpful in building an API response. Shown below was a common pattern prior to Laravel 5.5.
+
+```php
+<?php
+
+class User extends Eloquent {
+    protected $hidden = ['password', 'remember_token'];
+}
+
+// Usage
+$user = User::find(1);
+$user->toArray();
+// Returns: ['name' => 'John', 'email' => 'john@example.com']
+```
+
+This pattern was flexible but any change to your database schema resulted in those changes appearing in your API. We needed something more flexible and landed on [Fractal](https://fractal.thephpleague.com) which served us well until Laravel added [official support](https://laravel.com/docs/5.5/releases) for API Resources, and thus we worked on an extension for that enhancement.
+
+{/* truncate */}
+
+A stock installation of Laravel leveraging API resources may have a class similar to below.
+
+```php
+<?php
+
+class UserResource extends JsonResource
+{
+    public function toArray(Request $request): array
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'email' => $this->email,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+        ];
+    }
+}
+```
+
+A common complaint we had was an entity (In this case a User) may have a different response depending on the permissions of a user. An admin may see more information about a user than say a support user or staff member. Laravel offered conditional attributes we could leverage, but those exploded pretty quickly in complexity when balancing many roles and many conditional attributes.
+
+So we built [Enhanced Resources](https://github.com/sourcetoad/enhanced-resources) to make this is a bit easier.
+
+```php
+<?php
+
+use Sourcetoad\EnhancedResources\Formatting\Attributes\Format;
+use Sourcetoad\EnhancedResources\Formatting\Attributes\IsDefault;
+use Sourcetoad\EnhancedResources\Resource;
+
+class QuestionResource extends Resource
+{
+    #[IsDefault, Format]
+    public function base(): array
+    {
+        return [
+            'type' => $this->type,
+            'text' => $this->text,
+            'answers' => $this->answers,
+        ];
+    }
+
+    #[Format]
+    public function teacher(): array
+    {
+        $data = $this->base();
+        $data['correct_answer'] = $this->correct_answer;
+
+        return $data;
+    }
+}
+```
+
+In this example we had a format that was the default (or `base`) for usage of the Question model. This example reflected a question schema which may have a question type, the question itself and any possible answers. We know students shouldn't have the answers, but the teacher should. We can easily assume the properties of the base resource and add on multiple conditional properties.
+
+Over time, we found this package to excel when formatting data differently depending on the device or permissions of the request in question. In addition to the structured approach that the Resource file had we also supported a variety of mutations directly on the resource.
+
+* `modify` - Change a key/value.
+* `except` - Exclude specific keys.
+* `only` - Include specific keys only.
+
+We could also apply the PHP8 attributes directly to the model to bind it to the corresponding Resource that represented it.
+
+```php
+use Illuminate\Database\Eloquent\Model;
+use Sourcetoad\EnhancedResources\Resourceable\AsResource;
+use Sourcetoad\EnhancedResources\Resourceable\ConvertsToResource;
+
+/**
+ * @method ExampleResource toResource()
+ */
+#[AsResource(ExampleResource::class)]
+class Example extends Model
+{
+    use ConvertsToResource;
+}
+
+(new Example)->toResource();
+```
+
+Enhanced Resources has been around since 2019 and still in use to this day.
+
+* [GitHub Repo](https://github.com/sourcetoad/enhanced-resources)
+* [Packagist](https://packagist.org/packages/sourcetoad/enhanced-resources)
