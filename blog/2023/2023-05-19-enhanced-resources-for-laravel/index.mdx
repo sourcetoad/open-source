@@ -82,13 +82,13 @@ class QuestionResource extends Resource
 
 In this example we had a format that was the default (or `base`) for usage of the Question model. This example reflected a question schema which may have a question type, the question itself and any possible answers. We know students shouldn't have the answers, but the teacher should. We can easily assume the properties of the base resource and add on multiple conditional properties.
 
-Over time, we found this package to excel when formatting data differently depending on the device or permissions of the request in question. In addition to the structured approach that the Resource file had we also supported a variety of mutations directly on the resource.
+Over time, we found this package to excel when formatting data differently depending on the permissions/roles of the requesting user. In addition to the structured approach that the Resource file had we also supported a variety of mutations directly on the resource.
 
 * `modify` - Change a key/value.
 * `except` - Exclude specific keys.
 * `only` - Include specific keys only.
 
-We could also apply the PHP8 attributes directly to the model to bind it to the corresponding Resource that represented it.
+This meant we could quickly apply a change if needed without adapting the resource file. We could also apply an attribute directly to the model to bind it to the corresponding Resource that represented it.
 
 ```php
 use Illuminate\Database\Eloquent\Model;
