@@ -10,6 +10,10 @@ const config: Config = {
   baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
+  future: {
+    v4: true,
+    experimental_faster: true,
+  },
   markdown: {
     mermaid: true,
   },
