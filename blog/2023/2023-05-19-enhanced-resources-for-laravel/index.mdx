@@ -5,9 +5,9 @@ authors: [connort, jasonj]
 tags: [php, resources, fractal, responses, laravel]
 ---
 
-As engineers of Laravel in the early days of the framework a common thing to develop was an API. Laravel prior to version 5.5 did not offer an elegant way to prepare/format API responses. Historically it worked by calling `toArray()` off your model instance.
+Developing an API was a common task for engineers working with Laravel in the early days of the framework. Prior to version 5.5 Laravel did not offer an elegant way to format/prepare API responses. Historically, it worked by calling `toArray()` on your model instance.
 
-For example this pattern of leveraging the `$hidden` property would exclude any of those attributes during serialization which was helpful in building an API response. Shown below was a common pattern prior to Laravel 5.5.
+This pattern of calling `toArray()` risked the possibility of exposing attributes that should not be exposed over an API. As a result, it was common to use the `$hidden` property to exclude the specified attributes during serialization which was helpful in building an API response as both a mechanism to avoid exposing sensitive data and more generally controlling which data would be included. The example shown below was a common pattern prior to Laravel 5.5.
 
 ```php
 <?php
@@ -22,11 +22,11 @@ $user->toArray();
 // Returns: ['name' => 'John', 'email' => 'john@example.com']
 ```
 
-This pattern was flexible but any change to your database schema resulted in those changes appearing in your API. We needed something more flexible and landed on [Fractal](https://fractal.thephpleague.com) which served us well until Laravel added [official support](https://laravel.com/docs/5.5/releases) for API Resources, and thus we worked on an extension for that enhancement.
+This approach was flexible, but any change to your database schema resulted in those changes appearing in your API. We needed something more concrete and landed on [Fractal](https://fractal.thephpleague.com) which served us well until Laravel added [official support](https://laravel.com/docs/5.5/releases) for API Resources, and thus we worked on an enhancement for that feature.
 
 {/* truncate */}
 
-A stock installation of Laravel leveraging API resources may have a class similar to below.
+A stock installation of Laravel leveraging API resources may have a class similar to the one shown below.
 
 ```php
 <?php
@@ -46,7 +46,7 @@ class UserResource extends JsonResource
 }
 ```
 
-A common complaint we had was an entity (In this case a User) may have a different response depending on the permissions of a user. An admin may see more information about a user than say a support user or staff member. Laravel offered conditional attributes we could leverage, but those exploded pretty quickly in complexity when balancing many roles and many conditional attributes.
+A common complaint we had was that an entity (in this case a User) may have a different responses depending on the permissions of the user making the request. An admin may see more information about a user than a support user, or staff member. Laravel offered conditional attributes we could leverage, but those exploded in complexity pretty quickly when balancing many roles and many conditional attributes.
 
 So we built [Enhanced Resources](https://github.com/sourcetoad/enhanced-resources) to make this is a bit easier.
 
@@ -107,7 +107,7 @@ class Example extends Model
 (new Example)->toResource();
 ```
 
-Enhanced Resources has been around since 2019 and still in use to this day.
+Enhanced Resources has been around since 2019 and is still in use to this day.
 
 * [GitHub Repo](https://github.com/sourcetoad/enhanced-resources)
 * [Packagist](https://packagist.org/packages/sourcetoad/enhanced-resources)
