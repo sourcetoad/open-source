@@ -1,0 +1,116 @@
+---
+slug: 2025/our-github-actions
+title: Our GitHub Actions
+authors: [connort]
+tags: [github-actions, github, ecs, ec2, tizen]
+---
+
+Over the course of a year in 2020 we fully migrated off our Jenkins installation which housed our entire set of pipelines for continuous integration and deployment. This is our journey of creating and open-sourcing a set of actions to grow our GitHub pipelines.
+
+{/* truncate */}
+
+Being early to the transition to GitHub Actions we found a few things that required a bit of custom code to work to our liking. A common example was authenticating to a system/service for either a legacy deployment procedure or a private package through a package manager.
+
+We basically wanted to execute a few shell commands prior to our non-interactive commands to run. Something like setting up the `ssh-agent` with a keypair and key scanning a host to trust it prior to our logic.
+
+So our first action was [ssh-socket-action](https://github.com/sourcetoad/ssh-socket-action) which was a JavaScript based action that automated that exact process. It could be called very simply with a few parameters.
+
+```yaml
+- name: SSH Socket Setup
+  uses: sourcetoad/ssh-socket-action@v1
+  with:
+      host: github.com
+      key: ${{ secrets.BASE64_SECRET_KEY }}
+```
+
+However, from our audit perspective it felt a bit weird that we were committing and saving a compiled distribution copy of our project in the repository. We trusted this because we wrote it, but as we found other JavaScript based actions it was a tough trust dance without a verified organization behind the action.
+
+We learned pretty quickly that GitHub offered 3 different forms of actions with them being Docker, JavaScript and Composite. We knew as another need arrived for custom code we would move away from the JavaScript based actions and instead use a Docker based one.
+
+As we were trying to replicate a Jenkins plugin for AWS CodeDeploy we couldn't find anything official that AWS or the community offered to replace that Jenkins plugin. The way it worked was archiving a folder, uploading it to S3 and preforming a deployment while monitoring the progress.
+
+At the time there was no comparable action that did all those things together. We had to be responsible for creating an archive, uploading it to S3 and then calling a deployment command that didn't really offer much detail in terms of monitoring the deployment.
+
+Thus, [aws-codedeploy-action](https://github.com/sourcetoad/aws-codedeploy-action) was made as a Docker based action written fully in Bash. It was easily auditable and worked with wonderful polling coverage and output.
+
+```yaml
+- name: AWS CodeDeploy
+  uses: sourcetoad/aws-codedeploy-action@v1
+  with:
+    codedeploy_name: project
+    codedeploy_group: prod
+    s3_bucket: project-codedeploy
+    s3_folder: production
+```
+
+This worked great up until the point that we started migrating towards a container deployment structure using ECS and once again hit a similar situation. There were no "all in one" actions that could upload to ECR, update a task definition and deploy.
+
+Thus, [aws-ecs-deploy-action](https://github.com/sourcetoad/aws-ecs-deploy-action) was built much like the previous iteration in pure Bash. It offered a robust set of parameters that allowed one-off tasks to be deployed (think like migrations) while offering monitoring for the actual deployment.
+
+```yaml
+- name: ECS Deploy
+  uses: sourcetoad/aws-ecs-deploy-action@v1
+  with:
+    ecs_cluster_name: cluster
+    ecs_service_name: project
+    service_task_definition_name: project-alpha
+    prepare_task_definition_name: project-alpha-migrations
+    prepare_task_container_network_config_filepath: ".github/networks/alpha.json"
+    prepare_task_container_image_changes: php|ecr.amazonaws.com/php:latest
+    service_container_image_changes: >
+        nginx|ecr.amazonaws.com/nginx:latest
+        php|ecr.amazonaws.com/php:latest
+```
+
+It may look daunting at first glance, but this robust configuration allows specifying any amount of image changes to be done to a task definition. So our action would download the task definition, embed the new container URLs, update the ECS service with the new version of the task definition and monitor the deployment.
+
+As we fixed version skew issues that we blogged about last year we introduced a new action [aws-s3-delete-after-action](https://github.com/sourcetoad/aws-s3-delete-after-action) to help solve an issue with keeping older assets in S3. We couldn't use lifecycle policies because deployments aren't uniformly timed. This action would run after our deployment and delete assets older than a certain time. This allowed our deployments to keep old/new assets to prevent breaking old clients.
+
+```yaml
+- name: S3 Delete After Deploy
+  uses: sourcetoad/aws-s3-delete-after-action@v1
+  with:
+    s3_bucket_name: bucket
+    s3_prefix: prefix/
+    s3_delete_phrase: "-30 days"
+```
+
+It was another Bash action chunking deletes for speed to solve our issue. As time went on had a new request to deploy an application into the Alibaba Cloud. This required us to build a copy of our ECS action, but intended for another provider.
+
+This led to the creation of [ack-deploy-action](https://github.com/sourcetoad/ack-deploy-action) with a similar parameter set.
+
+```yaml
+-   uses: sourcetoad/ack-deploy-action@v1
+    with:
+      ack_deployment_name: project-name
+      prepare_task_config_filepath: ./path/to/prepare-task.yml
+      prepare_job_name: project-migrations-job
+      prepare_job_container_image_changes: initial=cr.aliyuncs.com/nginx:latest
+      deployment_container_image_changes: >
+        php=cr.aliyuncs.com/php:latest
+        nginx=cr.aliyuncs.com/nginx:latest
+      kubeconfig_location: /github/home/ack_kubeconfig
+```
+
+We found a preference with pure Bash actions as the community could easily audit our work, get involved and didn't have to worry about a compilation step or large chunk of dependencies.
+
+This development of GitHub Actions continued when we found a need to build Tizen applications, but the non-interactive continuous deployment iteration of building `.wgt` applications was weak. Thus, a new action [tizen-build-action](https://github.com/sourcetoad/tizen-build-action) was born.
+
+```yaml
+- name: Build Tizen app
+  uses: sourcetoad/tizen-build-action@v1.1.2
+  with:
+    project-dir: ${{ github.workspace }}/TizenApp
+    author-key: ${{ secrets.TIZEN_AUTHOR_KEY }}
+    author-password: ${{ secrets.TIZEN_AUTHOR_KEY_PW }}
+```
+
+We had a developed a pattern that when we needed to fully automate our deployment procedure and an option didn't exist. We wrote one in Bash for GitHub Actions and open sourced it. Over the years that led to the creation of:
+
+* [ssh-socket-action](https://github.com/sourcetoad/ssh-socket-action) - A GitHub Action to set up (or reuse) an SSH socket using a private key, allowing subsequent workflow steps to perform SSH operations securely
+* [aws-codedeploy-action](https://github.com/sourcetoad/aws-codedeploy-action) - A GitHub Action to package and deploy applications to EC2 via AWS CodeDeploy, handling S3 upload, revision registration, and deployment monitoring
+* [aws-ecs-deploy-action](https://github.com/sourcetoad/aws-ecs-deploy-action) - A GitHub Action that fetches and edits ECS task definitions (using jq) and updates the service to deploy new container images, with built-in polling for deployment status
+* [aws-s3-delete-after-action](https://github.com/sourcetoad/aws-s3-delete-after-action) - A GitHub Action to list and delete objects in an S3 bucket older than a given time frame (e.g., “-30 days”), supporting dry runs and batching deletions
+* [ack-deploy-action](https://github.com/sourcetoad/ack-deploy-action) - A GitHub Action to deploy containers to Alibaba Cloud’s Kubernetes Service (ACK), optionally running a prepare job (e.g., migrations) before updating deployments via kubectl/kustomize
+* [tizen-build-action](https://github.com/sourcetoad/tizen-build-action) - A GitHub Action to build and package Tizen web applications (“.wgt”), including signing with provided certificates and keys, producing a deployable artifact
+
