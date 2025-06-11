@@ -27,7 +27,7 @@ However, from our audit perspective it felt a bit weird that we were committing 
 
 We learned pretty quickly that GitHub offered 3 different forms of actions with them being Docker, JavaScript and Composite. We knew as another need arrived for custom code we would move away from the JavaScript based actions and instead use a Docker based one.
 
-As we were trying to replicate a Jenkins plugin for AWS CodeDeploy we couldn't find anything official that AWS or the community offered to replace that Jenkins plugin. The way it worked was archiving a folder, uploading it to S3 and preforming a deployment while monitoring the progress.
+As we were trying to replicate a Jenkins plugin for AWS CodeDeploy we couldn't find anything official that AWS or the community offered to replace that Jenkins plugin. The way it worked was archiving a folder, uploading it to S3 and performing a deployment while monitoring the progress.
 
 At the time there was no comparable action that did all those things together. We had to be responsible for creating an archive, uploading it to S3 and then calling a deployment command that didn't really offer much detail in terms of monitoring the deployment.
 
@@ -105,7 +105,7 @@ This development of GitHub Actions continued when we found a need to build Tizen
     author-password: ${{ secrets.TIZEN_AUTHOR_KEY_PW }}
 ```
 
-We had a developed a pattern that when we needed to fully automate our deployment procedure and an option didn't exist. We wrote one in Bash for GitHub Actions and open sourced it. Over the years that led to the creation of:
+We had developed a pattern that when we needed to fully automate our deployment procedure and an option didn't exist, we wrote one in Bash for GitHub Actions and open sourced it. Over the years that led to the creation of:
 
 * [ssh-socket-action](https://github.com/sourcetoad/ssh-socket-action) - A GitHub Action to set up (or reuse) an SSH socket using a private key, allowing subsequent workflow steps to perform SSH operations securely
 * [aws-codedeploy-action](https://github.com/sourcetoad/aws-codedeploy-action) - A GitHub Action to package and deploy applications to EC2 via AWS CodeDeploy, handling S3 upload, revision registration, and deployment monitoring
