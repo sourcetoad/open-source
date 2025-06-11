@@ -2,10 +2,10 @@
 _Built using [Docusaurus 3](https://docusaurus.io/), a modern static website generator._
 
 ## Branch Management
-* `master` - Branch off for features. Merges will deploy to `master` environment.
+* `main` - Branch off for features. Merges will deploy to `main` environment.
 
 ## Environments
-* `master` - `https://opensource.sourcetoad.com`
+* `main` - `https://opensource.sourcetoad.com`
 
 ### Local Setup
 
