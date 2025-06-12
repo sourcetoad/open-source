@@ -5,11 +5,11 @@ authors: [connort]
 tags: [github-actions, github, ecs, ec2, tizen]
 ---
 
-Over the course of a year in 2020 we fully migrated off our Jenkins installation which housed our entire set of pipelines for continuous integration and deployment. This is our journey of creating and open-sourcing a set of actions to grow our GitHub pipelines.
+Over the course of a year in 2020, we fully migrated off our Jenkins installation which housed our entire set of pipelines for continuous integration and deployment. This is our journey of creating and open-sourcing a set of actions to grow our GitHub pipelines.
 
 {/* truncate */}
 
-Being early to the transition to GitHub Actions we found a few things that required a bit of custom code to work to our liking. A common example was authenticating to a system/service for either a legacy deployment procedure or a private package through a package manager.
+Being early to the transition to GitHub Actions, we found a few things that required a bit of custom code to work to our liking. A common example was authenticating to a system/service for either a legacy deployment procedure or a private package through a package manager.
 
 We basically wanted to execute a few shell commands prior to our non-interactive commands to run. Something like setting up the `ssh-agent` with a keypair and key scanning a host to trust it prior to our logic.
 
@@ -23,11 +23,11 @@ So our first action was [ssh-socket-action](https://github.com/sourcetoad/ssh-so
       key: ${{ secrets.BASE64_SECRET_KEY }}
 ```
 
-However, from our audit perspective it felt a bit weird that we were committing and saving a compiled distribution copy of our project in the repository. We trusted this because we wrote it, but as we found other JavaScript based actions it was a tough trust dance without a verified organization behind the action.
+However, from our audit perspective, it felt a bit weird that we were committing and saving a compiled distribution copy of our project in the repository. We trusted this because we wrote it, but as we found other JavaScript based actions it was a tough trust dance without a verified organization behind the action.
 
 We learned pretty quickly that GitHub offered 3 different forms of actions with them being Docker, JavaScript and Composite. We knew as another need arrived for custom code we would move away from the JavaScript based actions and instead use a Docker based one.
 
-As we were trying to replicate a Jenkins plugin for AWS CodeDeploy we couldn't find anything official that AWS or the community offered to replace that Jenkins plugin. The way it worked was archiving a folder, uploading it to S3 and performing a deployment while monitoring the progress.
+As we were trying to replicate a Jenkins plugin for AWS CodeDeploy, we couldn't find anything official that AWS or the community offered to replace that Jenkins plugin. The way it worked was archiving a folder, uploading it to S3 and performing a deployment while monitoring the progress.
 
 At the time there was no comparable action that did all those things together. We had to be responsible for creating an archive, uploading it to S3 and then calling a deployment command that didn't really offer much detail in terms of monitoring the deployment.
 
