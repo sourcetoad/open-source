@@ -37,7 +37,7 @@ const FeatureList: FeatureItem[] = [
     url: 'docs/react-native-packages',
     description: (
       <>
-          Our expertise in React Native is reflected in the apps we've developed for our clients. Along the way, we've revived and released open-source projects to contribute back to the community.
+          Our expertise in React Native is reflected in the apps we've developed for our clients. Along the way, we've revived and released open source projects to contribute back to the community.
       </>
     ),
   },
