@@ -1,0 +1,23 @@
+connort:
+  name: Connor Tumbleson
+  title: Director of Engineering
+  url: https://github.com/ibotpeaches
+  image_url: https://github.com/ibotpeaches.png
+
+justinw:
+  name: Justin Weber
+  title: CTO
+  url: https://github.com/jweberst
+  image_url: https://github.com/jweberst.png
+
+jasonj:
+  name: Jason Jones
+  title: Senior Software Engineer II, Lead
+  url: https://github.com/jasonej
+  image_url: https://github.com/jasonej.png
+
+erikp:
+  name: Erik Perri
+  title: Senior Software Engineer II
+  url: https://github.com/erik-perri
+  image_url: https://github.com/erik-perri.png

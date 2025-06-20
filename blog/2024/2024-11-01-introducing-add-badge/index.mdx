@@ -1,0 +1,73 @@
+---
+slug: 2024/introducing-add-badge
+title: Introducing Add Badge - an overlay badge plugin.
+authors: [connort, erikp]
+tags: [nodejs, wasm, imagick, badge, badging, fastlane]
+---
+
+import ImageRow from '@site/src/components/ImageRow';
+
+As our application pipeline elevated into ephemeral GitHub Action containers the Fastlane plugin codenamed "[badge](https://github.com/HazAT/badge)" we used was showing some age. It depended on a few native dependencies and took a bit of time to install on our runners. We saw this chance to leverage some exciting new technology and produce an alternative.
+
+{/* truncate */}
+
+For context badging is the art of adding little ribbons around your application icon to more easily denote different builds (Beta/Alpha) during development. Thus, in late 2015 when [Fastlane](https://fastlane.tools/) was exploding in popularity to automate application builds - we found success using the badge plugin.
+
+import oldBadge1 from './old-badge.png';
+import oldBadge2 from './old-badge-2.png';
+
+<ImageRow
+  images={[
+    {src: oldBadge1, alt: 'Old Badge #1'},
+    {src: oldBadge2, alt: 'Old Badge #2'}
+  ]}
+  />
+
+It was great for almost an entire decade, but like some software it showed some sign of decay. We noticed that as our build machines evolved packages like Librsvg and ImageMagick had compatibility issues. We got to work envisioning a new plugin to badge our applications.
+
+We knew the power behind ImageMagick, and we wanted to stick with it, but we wanted to leverage the tool without the effort of installing binaries onto runners. Thankfully WASM (WebAssembly) had matured as a solution for this. We found an open source library called [magick-wasm](https://github.com/dlemstra/magick-wasm). It offered an elegant API to work with ImageMagick leveraging a WASM implementation for the ImageMagick binary itself.
+
+:::tip
+WebAssembly (WASM) is a binary code format that serves as a portable compilation target for programs, enabling high-performance applications to run on web browsers at near-native speed.
+:::
+
+This meant we could write code familiar to us in Node.js while using the power of WASM in one common codebase.
+
+```ts
+import { readFileSync } from 'node:fs';
+import { initializeImageMagick, Magick } from '@imagemagick/magick-wasm';
+
+const wasmBytes = readFileSync(
+    require.resolve('@imagemagick/magick-wasm/magick.wasm'),
+);
+initializeImageMagick(wasmBytes).then(() => {
+    console.log(Magick.imageMagickVersion);
+});
+```
+
+With a few short lines of code we were moving and a library was being born. We wanted to keep the behavior we were used to which allowed us to bulk edit images and modify them in place. Our use-case would be a build pipeline changing a variety of Android and iOS images to badge the Beta builds. The features our plugin offered expanded towards:
+
+ * Changing the font size, color and font itself.
+ * Controlling the background color or shadow color.
+ * Controlling the position and gravity of the badge.
+ * Supporting a dry run mode
+
+With a few pull requests ([#69](https://github.com/dlemstra/magick-wasm/pull/69) and [#70](https://github.com/dlemstra/magick-wasm/pull/70)) upstream to the magick-wasm library and a bit of development we had a good proof of concept.
+
+import newBadge1 from './new-badge-1.png';
+import newBadge2 from './new-badge-2.png';
+
+<ImageRow
+  images={[
+    {src: newBadge1, alt: 'New Badge #1'},
+    {src: newBadge2, alt: 'New Badge #2'}
+  ]}
+/>
+
+We could handle circles or squares as the logic checks the insets and width to place the ribbon correctly. We test drove a few of our client applications to confirm their specific logos worked and once we worked out a few edge cases we were happy with it.
+
+Thus, [add-badge](https://github.com/sourcetoad/add-badge) was born. An open source package intended for build pipelines to badge applications.
+
+ * [Icon Samples](https://github.com/sourcetoad/add-badge/blob/master/SAMPLES.md)
+ * [GitHub Repo](https://github.com/sourcetoad/add-badge)
+ * [npmjs](https://www.npmjs.com/package/@sourcetoad/add-badge)
