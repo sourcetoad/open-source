@@ -176,16 +176,22 @@ SESSION_DRIVER=redis
 SESSION_CONNECTION=aws
 
 CACHE_STORE=redis
-CACHE_PREFIX=alpha_
+CACHE_PREFIX={alpha}_
 
 REDIS_CLUSTER_HOST=clustercfg.project-redis-cluster.xxxxxx.use1.cache.amazonaws.com
 REDIS_CLUSTER_PORT=6379
 REDIS_PERSISTENCE=true
-REDIS_PREFIX=alpha_
 REDIS_CACHE_CONNECTION=aws
 REDIS_CACHE_LOCK_CONNECTION=aws
 REDIS_QUEUE_CONNECTION=aws
 ```
+
+:::info
+
+Now your probably thinking - why not just set `REDIS_PREFIX={alpha}_` and be done with it? In normal circumstances we could, but a larger system could not rely on a single hard-coded hash tag for all keys - we had to get creative.
+
+:::
+
 
 So lets break this down:
 
