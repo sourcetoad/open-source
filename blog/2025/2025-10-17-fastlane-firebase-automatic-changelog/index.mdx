@@ -29,7 +29,7 @@ firebase_app_distribution(
 
 A quick peek of their [docs](https://firebase.google.com/docs/app-distribution/ios/distribute-fastlane#distribute) we noticed 2 parameters that caught our eye:
 - `release_notes`: A string to be used as the changelog for the release.
-- `release_notes_file`: A file path to a text file containing the changelog for the  release.
+- `release_notes_file`: A file path to a text file containing the changelog for the release.
 
 Knowing we could easily obtain commits in our GitHub Actions pipeline we theorized we could generate a file based on the commits and pass that to Firebase.
 
