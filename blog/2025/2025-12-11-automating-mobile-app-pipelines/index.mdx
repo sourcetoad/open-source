@@ -32,7 +32,7 @@ Utilizing this private runner couldn't be any easier with GitHub Actions. We cre
 ```yaml
 jobs:
   build_ios:
-    # runs-on: macos-26
+    # runs-on: macos-26 - GitHub hosted macOS runner
     runs-on: [self-hosted, macos, ARM64]
     environment: demo-alpha
     steps:
@@ -189,7 +189,7 @@ gradle(task: options[:buildTask], build_type: "Release", properties: {
 })
 ```
 
-We found a good pattern of forcing a clean build then kicking off a build (whether `assembleRelease` or `bundleRelease`) with all the needed keystore information injected. This keeps our CI pipeline from spitting out secrets in build output or projects needing to container test or production keystore files. Depending on the lane we may want an `.apk` or `.aab` so we keep that dynamic as well for our different use cases.
+We found a good pattern of forcing a clean build then kicking off a build (whether `assembleRelease` or `bundleRelease`) with all the needed keystore information injected. This keeps our CI pipeline from spitting out secrets in build output or projects needing to contain test or production keystore files. Depending on the lane we may want an `.apk` or `.aab` so we keep that dynamic as well for our different use cases.
 
 Those environment variables are stored in GitHub secrets and injected into the workflow prior to execution with something like this:
 
