@@ -7,9 +7,9 @@ tags: [proxy, hack, speed]
 
 Every so often during development we find ourselves in the need of having a secure (SSL) connection to a locally running project. In most cases we are developing against a service that has webhooks. Some services have a robust library of mock payloads and others just require us to wire up a webhook tunnel to our local machine and trigger some events in order to complete development.
 
-There is an endless amount of services that provide this tunnel functionality, and we historically used ngrok, but since moved on to a self-hosted solution of [SirTunnel](https://github.com/anderspitman/SirTunnel). It worked under the hood by running [Caddy](https://caddyserver.com) and minting fresh SSL certificates for whatever subdomain you requested.
+There is an endless amount of services that provide this tunnel functionality. We historically used ngrok, but since moved on to a self-hosted solution of [SirTunnel](https://github.com/anderspitman/SirTunnel). It worked under the hood by running [Caddy](https://caddyserver.com) and minting fresh SSL certificates for whatever subdomain you requested.
 
-Of course minting fresh SSL certificates had a downside and that was certificate transparency logs. We'd notice moments after creating a new certificate that a bunch of different IP addresses would start hitting our local machine. We assume this is because the certificate transparency logs were being monitored by bots that then crawled the new certificate to investigate. So we were surprised one day to be alerted to one of our API keys being leaked & stolen.
+Of course minting fresh SSL certificates had a downside: certificate transparency logs. We'd notice moments after creating a new certificate that a bunch of different IP addresses would start hitting our local machine. We assume this is because the certificate transparency logs were being monitored by bots that then crawled the new certificate to investigate. So we were surprised one day to be alerted to one of our API keys being leaked & stolen.
 
 {/* truncate */}
 
@@ -59,7 +59,7 @@ We couldn't really find anything in the docs, so we checked out other solutions 
  * [Yii2 Gii](https://www.yiiframework.com/extension/yiisoft/yii2-gii/doc/api/2.0/yii-gii-module#$allowedIPs-detail) - Had an `$allowedIps` property to restrict access to certain IP addresses.
  * [Vite](https://vite.dev/config/server-options#server-allowedhosts) - Had an `allowedHosts` option to restrict access to certain hostnames.
 
-So we reached out to Laravel to see if they were interested in adding a similar feature to Telescope and any other package affected by this flaw. They responded near immediately and asked a few follow-up questions and then implemented a new package and solution within a few weeks. We saw the introduction of [Laravel Sentinel](https://github.com/laravel/sentinel) which was a small little package that leveraged the existing trusted proxies feature of Laravel.
+So we reached out to Laravel to see if they were interested in adding a similar feature to Telescope and any other package affected by this flaw. They responded near immediately and asked a few follow-up question. They then implemented a new package and solution within a few weeks. We saw the introduction of [Laravel Sentinel](https://github.com/laravel/sentinel) which was a small little package that leveraged the existing trusted proxies feature of Laravel.
 
 We then spotted a few pull requests to other packages implementing the Sentinel package:
 
