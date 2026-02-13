@@ -32,7 +32,7 @@ Data:
     commonName                = hacktest.local.sourcetoadtest.com
 ```
 
-What was crazy to us is seeing this certificate minted at 15:02:48 and having external requests hitting our local machine 10 seconds prior to the start date of the certificate. This doesn't add up, but regardless after another test we are confident to say that within seconds of minting a new certificate there are scripts/bots checking our local website.
+What was crazy to us was seeing this certificate minted at 15:02:48 and having external requests hitting our local machine 10 seconds prior to the start date of the certificate. This doesn't add up, but regardless, after another test we are confident to say that within seconds of minting a new certificate, there are scripts/bots checking our local website.
 
 <div class="text--center">
   ![inbound local requests](./requests.png)
@@ -67,7 +67,7 @@ We then spotted a few pull requests to other packages implementing the Sentinel 
  * [Laravel Telescope](https://github.com/laravel/telescope/pull/1674)
  * [Laravel Pulse](https://github.com/laravel/pulse/pull/475)
 
-Now with an upgraded Telescope and a new proxy service we felt pretty secure again. The benefit of a new proxy service was domains were not minted on the fly and instead leveraged a wildcard domain. This reduced the instant exposure of any new certificate that our previous solution of SirTunnel did, because our wildcard SSL domain did not require new entries into transparency logs as used. Additionally, the service employs their own protections against their network blocking those pesky IPs that do nothing but probe the web.
+Now with an upgraded Telescope and a new proxy service we felt pretty secure again. The benefit of a new proxy service was domains were not minted on the fly and instead leveraged a wildcard domain. This reduced the instant exposure of any new certificate that our previous solution of SirTunnel did, because our wildcard SSL domain did not require new entries into transparency logs. Additionally, the service employs their own protections against their network blocking those pesky IPs that do nothing but probe the web.
 
 Paired with an updated version of Laravel Telescope that leveraged Laravel Sentinel we knew it was gating access to the Telescope dashboard to only local IP addresses.
 
