@@ -11,7 +11,7 @@ There is an endless amount of services that provide this tunnel functionality, a
 
 Of course minting fresh SSL certificates had a downside and that was certificate transparency logs. We'd notice moments after creating a new certificate that a bunch of different IP addresses would start hitting our local machine. We assume this is because the certificate transparency logs were being monitored by bots that then crawled the new certificate to investigate. So we were surprised one day to be alerted to one of our API keys being leaked & stolen.
 
-<!-- truncate -->
+{/* truncate */}
 
 Now with a key rotated we got to work investigating how we lost a key and how to prevent it from happening again. We knew since it was a local key from an engineer's computer that the vector had to be an insecure exposure of a local Laravel application. We spawned two new fresh certificates proxied to local Laravel applications and monitored the traffic.
 
