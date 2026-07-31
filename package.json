@@ -17,10 +17,10 @@
   },
   "dependencies": {
     "@dipakparmar/docusaurus-plugin-umami": "^2.2.0",
-    "@docusaurus/core": "^3.9.0",
-    "@docusaurus/faster": "^3.9.0",
-    "@docusaurus/preset-classic": "^3.9.0",
-    "@docusaurus/theme-mermaid": "^3.9.0",
+    "@docusaurus/core": "^3.10.2",
+    "@docusaurus/faster": "^3.10.2",
+    "@docusaurus/preset-classic": "^3.10.2",
+    "@docusaurus/theme-mermaid": "^3.10.2",
     "@mdx-js/react": "^3.0.0",
     "clsx": "^2.0.0",
     "prism-react-renderer": "^2.3.0",
@@ -28,9 +28,9 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "^3.9.0",
-    "@docusaurus/tsconfig": "^3.9.0",
-    "@docusaurus/types": "^3.9.0",
+    "@docusaurus/module-type-aliases": "^3.10.2",
+    "@docusaurus/tsconfig": "^3.10.2",
+    "@docusaurus/types": "^3.10.2",
     "eslint": "^9.19.0",
     "eslint-plugin-mdx": "^3.4.2",
     "typescript": "~5.6.2"
@@ -51,9 +51,9 @@
     "node": ">=24.0"
   },
   "allowScripts": {
-    "@swc/core@1.15.3": true,
-    "core-js@3.42.0": true,
     "core-js-pure@3.47.0": true,
-    "fsevents@2.3.3": true
+    "fsevents@2.3.3": true,
+    "core-js@3.49.0": true,
+    "@swc/core@1.15.47": true
   }
 }
