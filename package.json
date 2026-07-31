@@ -48,6 +48,12 @@
     ]
   },
   "engines": {
-    "node": ">=20.0"
+    "node": ">=24.0"
+  },
+  "allowScripts": {
+    "@swc/core@1.15.3": true,
+    "core-js@3.42.0": true,
+    "core-js-pure@3.47.0": true,
+    "fsevents@2.3.3": true
   }
 }
