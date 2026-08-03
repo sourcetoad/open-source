@@ -50,14 +50,14 @@ set $CSP_DEFAULT_SRC "default-src 'none'";
 set $CSP_FONT_SRC "font-src 'self' data: fonts.bunny.net js.arcgis.com";
 set $CSP_FRAME_SRC "frame-src 'self' ${CONNECT_CSP_URL} app.powerbi.com";
 
-add_header Content-Security-Policy "${CSP_DEFAULT_SRC}; ${CSP_FONT_SRC}; ${CSP_FRAME_SRC}; report-uri ${SENTRY_CSP_URL};" always;
+add_header Content-Security-Policy "${CSP_DEFAULT_SRC}; ${CSP_FONT_SRC}; ${CSP_FRAME_SRC}; report-to ${SENTRY_CSP_URL};" always;
 ```
 
 We preferred the NGINX layer because it made the responsibility of the policy split from the application. Sure it increased the difficulty a bit, but our entry point controlling everything CSP seemed a bit easier. Since auditors will want to be sure your policy applies on all endpoints - including errors. This is where an NGINX defined CSP shined a bit more than an application level one.
 
 Locally this was a challenge, because our policies would be massively different. We may be running development servers to serve assets, hosts may be spawning on random Docker internal ports and assets coming from a locally served RustFS instance. It also didn't make sense to report our failures anywhere and clog up Sentry, so we had a problem to solve.
 
-We ended up building a tiered system of CSP parameters. Such that we had a base (common for everything), local (specific to local) & deploy (specific to any deployed environment) layers. This worked well, but now we had an issue in local development that needed something a bit more elegant for engineers to notice their change would require a CSP adaption. Sure logs were going into the console, but those could be missed easily.
+We ended up building a tiered system of CSP parameters. Such that we had a base (common for everything), local (specific to local) & deploy (specific to any deployed environment) layers. This worked well, but now we had an issue in local development that needed something a bit more elegant for engineers to notice their change would require a CSP adaptation. Sure logs were going into the console, but those could be missed easily.
 
 We discovered the [ReportingObserver](https://developer.mozilla.org/en-US/docs/Web/API/ReportingObserver/ReportingObserver) which as the name suggests spawns an Observer that can listen for reports/violations that may occur at the CSP layer. So for our Vue application we did something like this:
 
@@ -94,8 +94,8 @@ export default function useCspViolationMonitor() {
 }
 ```
 
-If a CSP violation was triggered it would display a Toast message instruction the user to check the console.
+If a CSP violation was triggered it would display a Toast message instructing the user to check the console.
 
-![./policy.png](policy.png)
+![Screenshot of a CSP violation toast notification](policy.png)
 
 The engineer at that point would find the relevant policy file (base, local or deploy) and adapt it. So now we had a more robust pipeline to prevent releasing code that would immediately fail a CSP directive. Our deployed CSP policies would continue reporting violations to Sentry and those went through our regular alerting process.
