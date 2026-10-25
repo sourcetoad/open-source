@@ -149,6 +149,7 @@ So we rewrote our configuration block slightly to this:
 'clusters' => [
   'aws' => [
     [
+      'scheme' => env('REDIS_CLUSTER_SCHEME', 'tcp'),
       'url' => env('REDIS_CLUSTER_URL'),
       'host' => env('REDIS_CLUSTER_HOST', '127.0.0.1'),
       'username' => env('REDIS_CLUSTER_USERNAME'),
@@ -346,11 +347,12 @@ Fortunately, we can peek [Laravel sourcecode](https://github.com/laravel/framewo
       'timeout' => env('REDIS_TIMEOUT', 5),
       'context' => [
         'verify_peer' => env('REDIS_SSL_VERIFY_PEER', false),
+        'verify_peer_name' => env('REDIS_SSL_VERIFY_PEER_NAME', false),
       ],
     ],
   ],
 ```
-So we added a new `context` block to our `config/database.php` file including `verify_peer`.
+So we added a new `context` block to our `config/database.php` file including `verify_peer` & `verify_peer_name`.
 
 We had a successful Redis Cluster connection with TLS! Our application was working great with a Redis Cluster communicating over TLS. However, for local usage this change forced TLS which was not preferred. We had to get creative reading the connection name and array merging the context block conditionally.
 
